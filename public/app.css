@@ -1,0 +1,52 @@
+.btn {
+  transition: all 0.2s ease;
+}
+.btn:hover {
+  transform: translateY(-1px);
+}
+.container {
+  width: auto;
+  max-width: 1080px;
+  padding: 0 15px;
+}
+
+/* 
+ * Serial Port Status Indicator
+ */ 
+.status-indicator {
+  height: 12px;
+  width: 12px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 8px;
+}
+.status-connected {
+  background-color: #28a745;
+}
+.status-disconnected {
+  background-color: #dc3545;
+}
+
+/* 
+ * Unsupported Browser Alert
+ */ 
+.alert-danger {
+  animation: shake 0.5s ease-in-out infinite;
+  animation-delay: 0s;
+  animation-duration: 5s;
+}
+
+@keyframes shake {
+  0%, 4%, 15% { transform: translateX(0); }
+  5%, 7%, 9%, 11%, 13% { transform: translateX(-5px); }
+  6%, 8%, 10%, 12%, 14% { transform: translateX(5px); }
+}
+
+/*
+ * Typefaces
+ */ 
+@font-face {
+  font-family: "jiskan16";
+  src: 
+    url("./fonts/JF-Dot-jiskan16-1990.woff2") format("woff2"),
+}

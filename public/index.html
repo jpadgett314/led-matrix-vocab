@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en" class="h-100" data-bs-theme="light">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="" />
+
+  <title>LED Matrix Word Randomizer</title>
+  <link rel="stylesheet" href="3rd-party/bootstrap/bootstrap.min.css" />
+  <link rel="stylesheet" href="3rd-party/bootstrap-icons/bootstrap-icons.min.css" />
+  <link rel="stylesheet" href="app.css" />
+</head>
+
+<body class="d-flex flex-column h-100">
+  <main class="flex-shrink-0">
+    <div class="container mt-5">
+      <div class="d-flex justify-content-center align-items-center">
+        <div class="alert alert-danger alert-dismissible fade show mb-5" id="unsupportedBrowserWarning" role="alert"
+          style="display: none">
+          <h6 class="m-1">
+            <strong>Your browser does not support the Web Serial API! A
+              Chromium-based browser is required.</strong>
+          </h6>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      </div>
+
+      <h1 class="text-center mb-4">LED Matrix Word Randomizer 🇯🇵</h1>
+
+      <div class="row">
+        <div class="col-lg-6 mb-4">
+          <div class="card shadow-sm border-0 bg-body-tertiary rounded-4 p-3">
+            <h5 class="mb-3 fw-semibold text-body-secondary">
+              LED Matrix Control
+            </h5>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <div>
+                <h6>Left Module</h6>
+                <div id="status-display-1" class="d-flex align-items-center">
+                  <span class="status-indicator status-disconnected"></span>
+                  <span class="text-body-secondary">Disconnected</span>
+                </div>
+              </div>
+              <button id="connect-btn-1" class="btn btn-primary">
+                Select Port
+              </button>
+            </div>
+
+            <hr />
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <div>
+                <h6>Right Module</h6>
+                <div id="status-display-2" class="d-flex align-items-center">
+                  <span class="status-indicator status-disconnected"></span>
+                  <span class="text-body-secondary">Disconnected</span>
+                </div>
+              </div>
+              <button id="connect-btn-2" class="btn btn-primary">
+                Select Port
+              </button>
+            </div>
+
+            <div class="text-center mt-4">
+              <button id="swap-ports-btn" class="btn">
+                <i class="bi bi-arrow-left-right"></i> Swap Ports
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6 mb-4">
+          <div class="card shadow-sm border-0 bg-body-tertiary rounded-4 p-3 pb-1">
+            <h5 class="mb-3 fw-semibold text-body-secondary">
+              Word Randomizer
+            </h5>
+            <div class="text-center bg-body shadow-sm p-4 mb-3 rounded-4">
+              <h1 id="current-word" class="display-3 fw-bold mb-0">単語</h1>
+            </div>
+
+            <div class="d-flex flex-row-reverse justify-content-between align-items-center mb-4">
+              <div>
+                <a id="jisho-link" href="https://jisho.org/search/単語" target="_blank" class="btn btn-link p-0 me-3">
+                  View on Jisho.org <i class="bi bi-box-arrow-up-right"></i>
+                </a>
+                <button id="new-word-btn" class="btn btn-primary">
+                  New Word
+                </button>
+              </div>
+              <small id="countdown-text" class="text-body-secondary collapse auto-mode">New word
+                in...</small>
+            </div>
+
+            <hr class="mb-4" />
+
+            <div class="row align-items-center mb-3">
+              <label for="word-source-select" class="col-sm-5 col-form-label">Word Source</label>
+              <div class="col-sm-7">
+                <select class="form-select" id="word-source-select"></select>
+              </div>
+            </div>
+
+            <div class="row align-items-center mb-3">
+              <label for="auto-mode-switch" class="col-sm-5 col-form-label">Auto Mode</label>
+              <div class="col-sm-7 text-end">
+                <div class="form-check form-switch d-inline-block">
+                  <input type="checkbox" data-bs-toggle="collapse" data-bs-target=".auto-mode" class="form-check-input"
+                    id="auto-mode-switch" />
+                  <label class="form-check-label" for="auto-mode-switch"></label>
+                </div>
+              </div>
+            </div>
+
+            <div class="row align-items-center collapse auto-mode mb-3">
+              <label for="delay-input" class="col-sm-5 col-form-label">Delay</label>
+              <div class="col-sm-7">
+                <div class="input-group">
+                  <input type="number" id="delay-input" class="form-control text-end" value="60" min="5" max="300"
+                    aria-label="Delay in seconds" />
+                  <span class="input-group-text">sec</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer mt-auto bg-body-tertiary">
+    <div class="container-fluid text-center">
+      <div class="row">
+        <div class="col-2"></div>
+        <div class="col-8 py-3">
+          <span class="text-body-secondary">
+            <a href="https://github.com/jpadgett314/led-matrix-vocab/blob/master/LICENSE_3RD_PARTY" class="text-decoration-none">
+              Software Licenses
+            </a>
+            |
+            <a href="https://github.com/jpadgett314/led-matrix-vocab/issues" class="text-decoration-none">
+              Report an Issue
+            </a>
+          </span>
+        </div>
+        <div class="col-2 text-end align-self-center">
+          <div class="btn-group dropup">
+            <button type="button" class="btn bg-body-secondary dropdown-toggle" data-bs-toggle="dropdown">
+              <i class="bi bi-circle-half"></i>
+            </button>
+            <ul class="dropdown-menu">
+              <li class="dropdown-item">
+                <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="light">
+                  <i class="me-2 bi bi-sun"></i>
+                  Light Mode
+                </button>
+              </li>
+              <li class="dropdown-item">
+                <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="dark">
+                  <i class="me-2 bi bi-moon-stars"></i>
+                  Dark Mode
+                </button>
+              </li>
+              <li class="dropdown-item">
+                <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="auto">
+                  <i class="me-2 bi bi-lightning-charge"></i>
+                  Auto
+                </button>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="3rd-party/bootstrap/bootstrap.bundle.min.js"></script>
+  <script src="3rd-party/jquery/jquery-3.7.1.min.js"></script>
+  <script src="js/app.js" type="module" ></script>
+
+</body>
+
+</html>
