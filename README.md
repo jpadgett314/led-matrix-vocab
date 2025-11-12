@@ -2,7 +2,7 @@
 
 Displays random Japanese words on a pair of Framework 16 LED matrix modules. 
 
-Live demo: https://jpadgett314.github.io/led-matrix-vocab/public
+Live demo: https://jpadgett314.github.io/led-matrix-vocab
 
 This app uses the Web Serial API, which is only supported on Chromium-based browsers.
 
