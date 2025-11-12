@@ -2,9 +2,6 @@
 .DS_Store
 Thumbs.db
 
-# IDE configuration files
-.vscode/
-
 # Temporary files
 *.swp
 *.swo
