@@ -33,21 +33,24 @@ class LetMatrixVocabApp {
   async init() {
     // Check for Web Serial API support
     if (!('serial' in navigator)) {
-      $('#unsupportedBrowserWarning').show();
-      $('#connect-btn-1, #connect-btn-2').prop('disabled', true);
+      document.getElementById('unsupportedBrowserWarning')
+        .style.display = 'block';
+      document.querySelectorAll('#connect-btn-1, #connect-btn-2')
+        .forEach(btn => btn.disabled = true);
     }
 
     // Populate the word source dropdown
-    const $select = $('#word-source-select');
+    const select = document.getElementById('word-source-select');
     for (const s of getSources()) {
-      $select.append(
-        $(`<option value="${s.value}">${s.title}</option>`)
-      );
+      const option = document.createElement('option');
+      option.value = s.value;
+      option.textContent = s.title;
+      select.appendChild(option);
     }
 
     // Set initial state from DOM
-    this.waitPeriod = $('#delay-input').val();
-    this.autoUpdate = $('#auto-mode-switch').is(':checked');
+    this.waitPeriod = document.getElementById('delay-input').value;
+    this.autoUpdate = document.getElementById('auto-mode-switch').checked;
 
     await this.loadWord('単語');
 
@@ -59,19 +62,27 @@ class LetMatrixVocabApp {
   bindEvents() {
     // Connect Buttons
     this.modules.forEach((_, index) => {
-      $(`#connect-btn-${index + 1}`).on('click', () => this.handleConnectClick(index));
+      document.getElementById(`connect-btn-${index + 1}`)
+        .addEventListener('click', () => this.handleConnectClick(index));
     });
 
     // Control Inputs
-    $('#swap-ports-btn').on('click', () => this.handleSwapPorts());
-    $('#new-word-btn').on('click', () => this.handleNewWord());
-    $('#auto-mode-switch').on('change', (e) => this.handleAutoModeChange(e));
-    $('#delay-input').on('change', (e) => this.handleDelayChange(e));
-    $('#word-source-select').on('change', (e) => this.handleSourceChange(e));
+    document.getElementById('swap-ports-btn')
+      .addEventListener('click', () => this.handleSwapPorts());
+    document.getElementById('new-word-btn')
+      .addEventListener('click', () => this.handleNewWord());
+    document.getElementById('auto-mode-switch')
+      .addEventListener('change', (e) => this.handleAutoModeChange(e));
+    document.getElementById('delay-input')
+      .addEventListener('change', (e) => this.handleDelayChange(e));
+    document.getElementById('word-source-select')
+      .addEventListener('change', (e) => this.handleSourceChange(e));
 
     // Light/Dark Mode 
-    $('[data-bs-theme-value]').on('click', (e) => {
-      $('html').attr('data-bs-theme', $(e.target).attr('data-bs-theme-value'));
+    document.querySelectorAll('[data-bs-theme-value]').forEach(element => {
+      element.addEventListener('click', (e) => {
+        document.documentElement.setAttribute('data-bs-theme', e.target.getAttribute('data-bs-theme-value'));
+      });
     });
   }
 
@@ -89,7 +100,7 @@ class LetMatrixVocabApp {
       const ver = await module.getFirmwareVersion();
       if (ver) {
         this.statusConnected(index, ver);
-        $(buttonSelector).prop('disabled', true);
+        document.querySelector(buttonSelector).disabled = true;
         await buffer.clear();
       } else {
         throw new Error('No firmware version received.');
@@ -106,10 +117,10 @@ class LetMatrixVocabApp {
     await this.display.forceTx();
 
     // Swap port status HTML
-    const status1 = $('#status-display-1').html();
-    const status2 = $('#status-display-2').html();
-    $('#status-display-1').html(status2);
-    $('#status-display-2').html(status1);
+    const status1 = document.getElementById('status-display-1').innerHTML;
+    const status2 = document.getElementById('status-display-2').innerHTML;
+    document.getElementById('status-display-1').innerHTML = status2;
+    document.getElementById('status-display-2').innerHTML = status1;
   }
 
   async handleNewWord() {
@@ -119,7 +130,7 @@ class LetMatrixVocabApp {
       this.timeLastUpdated = Date.now(); // Reset timer on manual change
     } catch (error) {
       console.error("Failed to fetch or render new word:", error);
-      $('#current-word').html("Error");
+      document.getElementById('current-word').innerHTML = "Error";
     }
   }
 
@@ -134,7 +145,7 @@ class LetMatrixVocabApp {
   }
 
   handleSourceChange(e) {
-    const selectedValue = $(e.currentTarget).val();
+    const selectedValue = e.currentTarget.value;
     this.wordSource = getSources().find(s => s.value === selectedValue);
     this.wordSource ??= getSources()[0];
   }
@@ -143,29 +154,30 @@ class LetMatrixVocabApp {
 
   async loadWord(word) {
     this.wordMarquee.load(word);
-    $('#current-word').html(word);
-    $('#jisho-link').prop('href', `https://jisho.org/search/${word}`);
+    document.getElementById('current-word').innerHTML = word;
+    document.getElementById('jisho-link')
+      .setAttribute('href', `https://jisho.org/search/${word}`);
   }
 
   statusConnected(index, ver) {
-    $(`#status-display-${index + 1}`).html(`
+    document.getElementById(`status-display-${index + 1}`).innerHTML = `
       <span class="status-indicator status-connected"></span>
       <span class="text-muted">Connected! Firmware Ver. ${ver.major}.${ver.minor}.${ver.patch}</span>
-    `);
+    `;
   }
 
   statusConnecting(index) {
-    $(`#status-display-${index + 1}`).html(`
+    document.getElementById(`status-display-${index + 1}`).innerHTML = `
       <span class="status-indicator status-disconnected"></span>
       <span class="text-muted">Connecting...</span>
-    `);
+    `;
   }
 
   statusFail(index) {
-    $(`#status-display-${index + 1}`).html(`
+    document.getElementById(`status-display-${index + 1}`).innerHTML = `
       <span class="status-indicator status-disconnected"></span>
       <span class="text-muted">Failed to connect</span>
-    `);
+    `;
   }
 
   startUpdateLoop() {
@@ -175,8 +187,9 @@ class LetMatrixVocabApp {
         const elapsed = (Date.now() - this.timeLastUpdated) / 1000;
         let timeLeftSec = this.waitPeriod - elapsed;
         let timeLeftShown = Math.max(0, Math.round(timeLeftSec));
-
-        $('#countdown-text').html(`New word in: ${timeLeftShown}s`);
+        
+        document.getElementById('countdown-text').innerHTML = 
+          `New word in: ${timeLeftShown}s`;
 
         if (timeLeftSec < 0.5) {
           // This method also resets the timer
@@ -196,7 +209,7 @@ class LetMatrixVocabApp {
 }
 
 // --- Run App ---
-$(async function() {
+document.addEventListener('DOMContentLoaded', async () => {
   const app = new LetMatrixVocabApp();
   await app.init();
 });

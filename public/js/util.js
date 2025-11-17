@@ -57,3 +57,12 @@ export function toGrayscaleMatrix(img) {
 
   return matrix;
 }
+
+export async function fetchJson(url) {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  } else {
+    return await response.json();
+  }
+}

@@ -1,6 +1,8 @@
+import { fetchJson } from "./util.js";
+
 class OfflineJlptSource {
   static async init() {
-    OfflineJlptSource.#words = await $.getJSON(
+    OfflineJlptSource.#words = await fetchJson(
       'datasets/jlpt-words-by-level.json'
     );
   }
@@ -25,7 +27,7 @@ class OfflineJlptSource {
 
 class OfflineWikipediaSource {
   static async init() {
-    OfflineWikipediaSource.#words = await $.getJSON(
+    OfflineWikipediaSource.#words = await fetchJson(
       'datasets/jawiki-2022-08-29.json'
     );
   }
@@ -50,14 +52,7 @@ class OnlineJlptSource {
   static async init() {
     const url = 'https://jlpt-vocab-api.vercel.app/api/words/random';
 
-    OnlineJlptSource.#cache = (async () => {
-      const res = await fetch(url);
-      if (!res.ok) {
-        throw new Error(`Response status: ${res.status}`);
-      } else {
-        return await res.json();
-      }
-    })();
+    OnlineJlptSource.#cache = (async () => fetchJson(url))();
 
     await OnlineJlptSource.#cache;
   }
@@ -65,7 +60,7 @@ class OnlineJlptSource {
   static async getEntry() {
     if (!this.#cache) await this.init();
 
-    // getWord() may be called before init()/getWord() returns
+    // getEntry() may be called before init()/getWord() returns
     const entry = await this.#cache;
     this.#cache = null;
     this.init();

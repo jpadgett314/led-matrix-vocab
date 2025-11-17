@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'v1';
+const CACHE_VERSION = 'v2';
 const CACHE_NAME = `led-vocab-${CACHE_VERSION}`;
 
 const ASSETS_TO_CACHE = [
@@ -14,7 +14,6 @@ const ASSETS_TO_CACHE = [
   '3rd-party/bootstrap-icons/bootstrap-icons.min.css',
   '3rd-party/bootstrap-icons/fonts/bootstrap-icons.woff',
   '3rd-party/bootstrap-icons/fonts/bootstrap-icons.woff2',
-  '3rd-party/jquery/jquery-3.7.1.min.js',
   'fonts/JF-Dot-jiskan16-1990.woff2',
   'js/app.js',
   'js/constants.js',
