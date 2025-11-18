@@ -1,0 +1,12 @@
+{
+  "name": "led-matrix-vocab",
+  "version": "0.1.1",
+  "license": "SEE LICENSE FILE",
+  "packageManager": "yarn@4.11.0",
+  "scripts": {
+    "serve": "serve ./public"
+  },
+  "dependencies": {
+    "serve": "^14.2.5"
+  }
+}
