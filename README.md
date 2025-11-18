@@ -8,25 +8,22 @@ Live demo: https://jpadgett314.github.io/led-matrix-vocab
 
 ## Installation
 
-This app can be saved to your desktop, enabling offline use. An install button will appear in the address bar or browser menu, if your browser supports Progressive Web Apps (all modern browsers).
+This app can be saved to your desktop! See [instructions](https://www.installpwa.com/from/jpadgett314.github.io%2Fled-matrix-vocab).
 
-Having trouble? See [Installation Instructions](https://www.installpwa.com/from/jpadgett314.github.io%2Fled-matrix-vocab).
-
-There is no need to flash firmware. Default firmware is expected. 
+There is no need to flash firmware. [Default firmware](https://github.com/FrameworkComputer/inputmodule-rs/releases) is expected. 
 
 > [!NOTE]  
 > This app uses the Web Serial API, which is only supported on Chromium-based browsers.
 
 ## Development
 
-This project features a minimalist development workflow. There is currently no bundler; in fact, there is no build. The source code is served directly from the `public` directory.
+There is no bundler, no build. The source code is served directly from the `public` directory.
 
-Due to the use of ECMAScript modules, a web server is required. Options include:
+However, a web server is required. Options include:
 
-1. Use the [Live Server](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer) VSCode extension.
-2. From the `public` directory, invoke python's built-in module: `python3 -m http.server`
-
-By default, this puts up the site on `http://127.0.0.1:5500/` (Live Server) `http://127.0.0.1:8000` (http.server).
+1. Use Yarn: `yarn install`, `yarn serve`.
+2. Use [Live Server](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer) VSCode extension.
+3. From the `public` directory, invoke python's built-in module: `python3 -m http.server`
 
 ## Contributing
 
