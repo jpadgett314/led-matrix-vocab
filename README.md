@@ -12,6 +12,8 @@ This app can be saved to your desktop, enabling offline use. An install button w
 
 Having trouble? See [Installation Instructions](https://www.installpwa.com/from/jpadgett314.github.io%2Fled-matrix-vocab).
 
+There is no need to flash firmware. Default firmware is expected. 
+
 > [!NOTE]  
 > This app uses the Web Serial API, which is only supported on Chromium-based browsers.
 
