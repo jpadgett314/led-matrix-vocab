@@ -1,20 +1,15 @@
 import { getSources } from './data-sources.js'
-import { BitDepth } from './constants.js';
 import { DisplayBuffer } from './DisplayBuffer.js';
 import { DisplayBufferPair } from './DisplayBufferPair.js';
 import { MarqueeText } from './MarqueeText.js';
-import { ModuleController } from './ModuleController.js';
+import { PortSelectionCancelled } from './usb-serial/environments/web/ports.js';
+import { SerialControllerFactory } from './usb-serial/SerialControllerFactory.js';
 
 class LetMatrixVocabApp {
   constructor() {
-    this.modules = [
-      new ModuleController(BitDepth.MONO_1BIT, 'left'),
-      new ModuleController(BitDepth.MONO_1BIT, 'right')
-    ];
-
     this.buffers = [
-      new DisplayBuffer([this.modules[0]]),
-      new DisplayBuffer([this.modules[1]])
+      new DisplayBuffer(),
+      new DisplayBuffer(),
     ];
 
     this.display = new DisplayBufferPair(
@@ -61,7 +56,7 @@ class LetMatrixVocabApp {
 
   bindEvents() {
     // Connect Buttons
-    this.modules.forEach((_, index) => {
+    this.buffers.forEach((_, index) => {
       document.getElementById(`connect-btn-${index + 1}`)
         .addEventListener('click', () => this.handleConnectClick(index));
     });
@@ -89,16 +84,16 @@ class LetMatrixVocabApp {
   // --- Event Handlers ---
 
   async handleConnectClick(index) {
-    const module = this.modules[index];
     const buffer = this.buffers[index];
     const buttonSelector = `#connect-btn-${index + 1}`;
 
     this.statusConnecting(index);
 
     try {
-      await module.connect();
-      const ver = await module.getFirmwareVersion();
+      const module = await SerialControllerFactory.make('web', 'auto');
+      const ver = await module?.version();
       if (ver) {
+        buffer.sinks = [module];
         this.statusConnected(index, ver);
         document.querySelector(buttonSelector).disabled = true;
         await buffer.clear();
@@ -106,21 +101,30 @@ class LetMatrixVocabApp {
         throw new Error('No firmware version received.');
       }
     } catch (error) {
-      console.error(`Failed to connect to module ${index + 1}:`, error);
-      this.statusFail(index);
+      if (error instanceof PortSelectionCancelled) {
+        console.error(error.message);
+        this.statusFail(index, 'Cancelled Port Selection');
+      } else {
+        console.error(`Failed to connect to module ${index + 1}:`, error);
+        this.statusFail(index);
+      }
     }
   }
 
   async handleSwapPorts() {
-    ModuleController.swapPorts(...this.modules);
+    [this.buffers[0].sinks, this.buffers[1].sinks]
+      = [this.buffers[1].sinks, this.buffers[0].sinks];
 
     await this.display.forceTx();
 
     // Swap port status HTML
-    const status1 = document.getElementById('status-display-1').innerHTML;
-    const status2 = document.getElementById('status-display-2').innerHTML;
-    document.getElementById('status-display-1').innerHTML = status2;
-    document.getElementById('status-display-2').innerHTML = status1;
+    [
+      document.getElementById('status-display-1').innerHTML,
+      document.getElementById('status-display-2').innerHTML,
+    ] = [
+      document.getElementById('status-display-2').innerHTML,
+      document.getElementById('status-display-1').innerHTML,
+    ];
   }
 
   async handleNewWord() {
@@ -160,9 +164,11 @@ class LetMatrixVocabApp {
   }
 
   statusConnected(index, ver) {
+    let verArr = [ver.major, ver.minor, ver.patch];
+    verArr = verArr.filter(v => v != null);
     document.getElementById(`status-display-${index + 1}`).innerHTML = `
       <span class="status-indicator status-connected"></span>
-      <span class="text-muted">Connected! Firmware Ver. ${ver.major}.${ver.minor}.${ver.patch}</span>
+      <span class="text-muted">Connected! Firmware Ver. ${verArr.join('.')}</span>
     `;
   }
 
@@ -173,10 +179,10 @@ class LetMatrixVocabApp {
     `;
   }
 
-  statusFail(index) {
+  statusFail(index, message='Failed to connect') {
     document.getElementById(`status-display-${index + 1}`).innerHTML = `
       <span class="status-indicator status-disconnected"></span>
-      <span class="text-muted">Failed to connect</span>
+      <span class="text-muted">${message}</span>
     `;
   }
 

@@ -1,12 +1,12 @@
-import { HEIGHT, WIDTH } from './constants.js';
+import { HEIGHT, WIDTH } from './hardware.js';
 import { createArray } from './util.js';
 
 export class DisplayBuffer {
-  constructor(sinks) {
+  constructor() {
     this.#buffer = createArray(HEIGHT, WIDTH);
     this.#dirty = true;
     this.#optimizationEnabled = true;
-    this.#sinks = sinks;
+    this.sinks = [];
   }
 
   setPixel(r, c, val) {
@@ -33,10 +33,10 @@ export class DisplayBuffer {
 
       // Update sinks concurrently
       await Promise.all(
-        this.#sinks.map(sink =>
-          typeof sink.setImage === 'function'
-            ? sink.setImage(this.#buffer)
-            : Promise.reject('No "setImage" method:', sink)
+        this.sinks.map(sink =>
+          typeof sink.draw === 'function'
+            ? sink.draw(this.#buffer)
+            : Promise.reject('No "draw" method:', sink)
         )
       );
     }
@@ -58,5 +58,4 @@ export class DisplayBuffer {
   #buffer;
   #dirty;
   #optimizationEnabled;
-  #sinks;
 }

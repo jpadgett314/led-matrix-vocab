@@ -1,10 +1,8 @@
-import { RawPortOperations } from './RawPortOperations.js';
-
 export class PortMutex {
-  constructor() {
+  constructor(portOperations) {
     this.#lockName = `port-mutex-${Math.random().toString()}`;
     this.#deduper = new Map();
-    this.#portOps = new RawPortOperations();
+    this.#portOps = portOperations;
   }
 
   async acquire(fn) {

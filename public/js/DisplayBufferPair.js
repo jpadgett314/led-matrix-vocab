@@ -1,4 +1,4 @@
-import { HEIGHT, WIDTH } from './constants.js';
+import { HEIGHT, WIDTH } from './hardware.js';
 
 export class DisplayBufferPair {
   constructor(bufferLeft, bufferRight) {

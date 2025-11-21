@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'v2';
+const CACHE_VERSION = 'v3';
 const CACHE_NAME = `led-vocab-${CACHE_VERSION}`;
 
 const ASSETS_TO_CACHE = [
@@ -16,16 +16,21 @@ const ASSETS_TO_CACHE = [
   '3rd-party/bootstrap-icons/fonts/bootstrap-icons.woff2',
   'fonts/JF-Dot-jiskan16-1990.woff2',
   'js/app.js',
-  'js/constants.js',
   'js/data-sources.js',
   'js/DisplayBuffer.js',
   'js/DisplayBufferPair.js',
   'js/effects.js',
+  'js/hardware.js',
   'js/MarqueeText.js',
-  'js/ModuleController.js',
-  'js/PortMutex.js',
-  'js/RawPortOperations.js',
   'js/util.js',
+  'js/usb-serial/SerialControllerFactory.js',
+  'js/usb-serial/environments/web/PortMutex.js',
+  'js/usb-serial/environments/web/PortOperations.js',
+  'js/usb-serial/environments/web/ports.js',
+  'js/usb-serial/firmware/framework-official/CommandAbstractionLayer.js',
+  'js/usb-serial/firmware/framework-official/commands.js',
+  'js/usb-serial/firmware/sigroot/CommandAbstractionLayer.js',
+  'js/usb-serial/firmware/sigroot/commands.js',
   'datasets/jlpt-words-by-level.json',
   'datasets/jawiki-2022-08-29.json',
   'icons/icon-192.png',

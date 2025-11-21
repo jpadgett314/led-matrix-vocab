@@ -1,23 +1,9 @@
-import { RX_PACKET_SZ, VID, VID_ARR } from './constants.js';
-
-export class RawPortOperations {
-  constructor() {
-    this.#port = null;
+export class PortOperations {
+  constructor(port) {
+    this.#port = port;
   }
 
-  async pickPort() {
-    this.#port = await navigator.serial.requestPort({
-      filters: [{ usbVendorId: VID }]
-    });
-
-    if (this.#port.connected) {
-      await this.#port.open({ baudRate: 115200 });
-    }
-
-    return this.#port.getInfo();
-  }
-
-  async rx() {
+  async rx(length, timeout=3000) {
     if (this.#port === null) {
       throw new Error('attempted RX before port initialization.');
     }
@@ -30,29 +16,29 @@ export class RawPortOperations {
       throw new Error('attempted RX while port locked.');
     }
 
-    const packet = [];
+    const response = [];
     const reader = this.#port.readable.getReader();
-    const timeout = setTimeout(() => reader.cancel(), 5000);
+    const timeoutHandle = setTimeout(() => reader.cancel(), timeout);
 
     try {
       // Response may be divided across multiple reads
-      while (packet.length < RX_PACKET_SZ) {
+      while (response.length < length) {
         const { value, done } = await reader.read();
-        packet.push(...(value ?? []));
+        response.push(...(value ?? []));
         if (done || !value) break;
       }
     } finally {
-      clearTimeout(timeout);
+      clearTimeout(timeoutHandle);
       reader.releaseLock();
     }
 
-    return packet;
+    return response;
   }
 
   async tx(buffer) {
     if (this.#port === null) {
       throw new Error('attempted TX before port initialization.');
-    } 
+    }
     
     /*
      * WritableStream's built-in locking mechanism cannot be awaited or otherwise
@@ -65,13 +51,11 @@ export class RawPortOperations {
     const writer = this.#port.writable.getWriter();
 
     try {
-      const bytes = [...VID_ARR, ...buffer];
-      const data = new Uint8Array(bytes);
-      await writer.write(data);
+      await writer.write(new Uint8Array(buffer));
     } finally {
       /* 
        * The writer must be completely torn down between every single write.
-       * Some parsers can't handle delayed flushing and write coalescing.
+       * Many parsers can't handle delayed flushing and write coalescing.
        * Command sequences will fail if `releaseLock()` is used here.
        */
       await writer.close();
