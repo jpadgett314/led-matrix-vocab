@@ -1,4 +1,5 @@
-import { getSources } from './data-sources.js'
+import { CustomLists } from './CustomLists.js';
+import { DataSources } from './DataSources.js'
 import { DisplayBuffer } from './DisplayBuffer.js';
 import { DisplayBufferPair } from './DisplayBufferPair.js';
 import { MarqueeText } from './MarqueeText.js';
@@ -7,22 +8,15 @@ import { SerialControllerFactory } from './usb-serial/SerialControllerFactory.js
 
 class LetMatrixVocabApp {
   constructor() {
-    this.buffers = [
-      new DisplayBuffer(),
-      new DisplayBuffer(),
-    ];
-
-    this.display = new DisplayBufferPair(
-      this.buffers[0], 
-      this.buffers[1]
-    );
-
-    // Application state
+    this.buffers = [new DisplayBuffer(), new DisplayBuffer()];
+    this.display = new DisplayBufferPair(...this.buffers);
+    this.customLists = new CustomLists();
+    this.wordSources = new DataSources(this.customLists);
+    this.wordSource = this.wordSources.get()[0]; // assume 1st selected
+    this.wordMarquee = new MarqueeText(this.display);
     this.autoUpdate = false;
     this.timeLastUpdated = Date.now();
     this.waitPeriod = 0;
-    this.wordSource = getSources()[0]; // assume 1st selected
-    this.wordMarquee = new MarqueeText(this.display);
   }
 
   async init() {
@@ -34,22 +28,22 @@ class LetMatrixVocabApp {
         .forEach(btn => btn.disabled = true);
     }
 
-    // Populate the word source dropdown
-    const select = document.getElementById('word-source-select');
-    for (const s of getSources()) {
-      const option = document.createElement('option');
-      option.value = s.value;
-      option.textContent = s.title;
-      select.appendChild(option);
-    }
-
-    // Set initial state from DOM
+    this.customListSelect = document.getElementById('custom-list-select');
+    this.listControls = document.getElementById('list-controls');
+    this.listNameInput = document.getElementById('list-name-input');
+    this.customListTextarea = document.getElementById('custom-list-textarea');
+    this.wordSourceSelect = document.getElementById('word-source-select');
     this.waitPeriod = document.getElementById('delay-input').value;
     this.autoUpdate = document.getElementById('auto-mode-switch').checked;
+    this.currentCustomListId = this.customListSelect.value;
 
     await this.loadWord('単語');
 
     this.bindEvents();
+
+    this.updateCustomListDropdown();
+
+    this.updateWordSourceDropdown();
 
     this.startUpdateLoop();
   }
@@ -72,11 +66,26 @@ class LetMatrixVocabApp {
       .addEventListener('change', (e) => this.handleDelayChange(e));
     document.getElementById('word-source-select')
       .addEventListener('change', (e) => this.handleSourceChange(e));
+    document.getElementById('add-list-btn')
+      .addEventListener('click', () => this.handleAddList());
+    document.getElementById('edit-list-btn')
+      .addEventListener('click', () => this.handleEditList());
+    document.getElementById('delete-list-btn')
+      .addEventListener('click', () => this.handleDeleteList());
+    document.getElementById('save-list-btn')
+      .addEventListener('click', () => this.handleSaveList());
+    document.getElementById('cancel-edit-btn')
+      .addEventListener('click', () => this.handleCancelEdit());
+    this.customListSelect.addEventListener('change',
+      (e) => this.handleListChange(e.target.value)
+    );
 
     // Light/Dark Mode 
     document.querySelectorAll('[data-bs-theme-value]').forEach(element => {
       element.addEventListener('click', (e) => {
-        document.documentElement.setAttribute('data-bs-theme', e.target.getAttribute('data-bs-theme-value'));
+        document.documentElement.setAttribute('data-bs-theme',
+          e.target.getAttribute('data-bs-theme-value')
+        );
       });
     });
   }
@@ -150,8 +159,67 @@ class LetMatrixVocabApp {
 
   handleSourceChange(e) {
     const selectedValue = e.currentTarget.value;
-    this.wordSource = getSources().find(s => s.value === selectedValue);
-    this.wordSource ??= getSources()[0];
+    this.wordSource = this.wordSources.get().find(s => s.value === selectedValue);
+    this.wordSource ??= this.wordSources.get()[0];
+  }
+
+  handleAddList() {
+    const id = this.customLists.createList('New List');
+    this.currentCustomListId = id;
+    this.updateCustomListDropdown();
+    this.listNameInput.value = 'New List';
+    this.customListTextarea.value = '';
+    this.listControls.style.display = 'block';
+  }
+
+  handleListChange(id) {
+    this.currentCustomListId = id;
+    if (id) {
+      this.listControls.style.display = 'none';
+    }
+  }
+
+  handleEditList() {
+    if (!this.currentCustomListId) return;
+    const list = this.customLists.getList(this.currentCustomListId);
+    if (!list) return;
+    this.listNameInput.value = list.name;
+    this.customListTextarea.value = list.words.join('\n');
+    this.listControls.style.display = 'block';
+  }
+
+  handleSaveList() {
+    if (!this.currentCustomListId) return;
+
+    const list = this.customLists.getList(this.currentCustomListId);
+    list.name = this.listNameInput.value.trim() ?? 'Untitled List';
+    list.words = this.customListTextarea.value
+      .split('\n')
+      .map(word => word.trim())
+      .filter(word => word.length > 0);
+
+    this.customLists.saveLists();
+
+    this.updateCustomListDropdown();
+    this.updateWordSourceDropdown();
+    this.listControls.style.display = 'none';
+  }
+
+  handleCancelEdit() {
+    this.listControls.style.display = 'none';
+  }
+
+  handleDeleteList() {
+    const list = this.customLists.getList(this.currentCustomListId);
+    if (!confirm(`Delete list "${list.name}"? This cannot be undone.`)) {
+      return;
+    }
+
+    this.customLists.deleteList(this.currentCustomListId);
+    this.currentCustomListId = null;
+    this.updateCustomListDropdown();
+    this.updateWordSourceDropdown();
+    this.listControls.style.display = 'none';
   }
 
   // --- Helper Methods ---
@@ -186,8 +254,46 @@ class LetMatrixVocabApp {
     `;
   }
 
+  updateCustomListDropdown() {
+    const lists = this.customLists.getListMetadata();
+
+    this.customListSelect.innerHTML = '';
+
+    if (lists.length === 0) {
+      const option = document.createElement('option');
+      option.value = '';
+      option.textContent = 'No custom lists';
+      this.customListSelect.appendChild(option);
+      this.listControls.style.display = 'none';
+    } else {
+      lists.forEach(list => {
+        const option = document.createElement('option');
+        option.value = list.id;
+        option.textContent = `${list.name} (${list.wordCount} words)`;
+        this.customListSelect.appendChild(option);
+      });
+
+      // Restore previous selection if it still exists
+      if (this.currentCustomListId && this.customLists.getList(this.currentCustomListId)) {
+        this.customListSelect.value = this.currentCustomListId;
+      } else {
+        this.currentCustomListId = this.customListSelect.value;
+      }
+    }
+  }
+
+  updateWordSourceDropdown() {
+    const select = this.wordSourceSelect;
+    select.innerHTML = '';
+    for (const s of this.wordSources.get()) {
+      const option = document.createElement('option');
+      option.value = s.value;
+      option.textContent = s.title;
+      select.appendChild(option);
+    }
+  }
+
   startUpdateLoop() {
-    // Check/update word update timer
     setInterval(async () => {
       if (this.autoUpdate) {
         const elapsed = (Date.now() - this.timeLastUpdated) / 1000;
@@ -204,7 +310,7 @@ class LetMatrixVocabApp {
       }
     }, 1000); 
     
-    // Update word animation frame. Throttles to 1hz when focus is lost.
+    // Throttles to 1hz when focus is lost.
     setInterval(async () => {
       if (this.wordMarquee) {
         await this.wordMarquee.nextFrame();

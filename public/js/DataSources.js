@@ -76,7 +76,7 @@ class OnlineJlptSource {
 */
 const WORD_SOURCES = [
   {
-    title: 'JLPT (offline)',
+    title: 'JLPT',
     value: 'jlpt1',
     fetch: async () => (await OfflineJlptSource.getEntry()).jp,
   },
@@ -85,13 +85,23 @@ const WORD_SOURCES = [
     value: 'wiki',
     fetch: async () => (await OfflineWikipediaSource.getEntry()).w,
   },
-  {
-    title: 'JLPT (online)',
-    value: 'jlpt2',
-    fetch: async () => (await OnlineJlptSource.getEntry()).word,
-  },
-];  
+];
 
-export function getSources() {
-  return WORD_SOURCES;
+export class DataSources {
+  constructor(customLists) {
+    this.#customLists = customLists;
+  }
+
+  get() {
+    return [
+      ...WORD_SOURCES, 
+      ...this.#customLists.getListMetadata().map(list => ({
+        title: `Custom List: ${list.name}`,
+        value: `custom-${list.id}`,
+        fetch: async () => this.#customLists.getRandomWord(list.id)
+      }))
+    ];
+  }
+
+  #customLists
 }
