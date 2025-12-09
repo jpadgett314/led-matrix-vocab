@@ -10,11 +10,7 @@ Live demo: https://jpadgett314.github.io/led-matrix-vocab
 
 This app can be saved to your desktop! See [instructions](https://www.installpwa.com/from/jpadgett314.github.io%2Fled-matrix-vocab).
 
-There is no need to flash firmware, since default firmware is supported. 
-
-List of supported firmware:
-- [FrameworkComputer/inputmodule-rs](https://github.com/FrameworkComputer/inputmodule-rs/releases) (default)
-- [sigroot/FW_LED_Matrix_Firmware](https://github.com/sigroot/FW_LED_Matrix_Firmware)
+There is no need to flash firmware, since default firmware is expected. 
 
 > [!NOTE]  
 > This app uses the Web Serial API, which is only supported on Chromium-based browsers.
