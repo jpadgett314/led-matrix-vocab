@@ -11,3 +11,14 @@
 ### Added
 
 * New "Custom Word Lists" panel with controls for creating, editing and deleting custom collections of words.
+
+## 0.3.1 - 2025-12-09
+
+### Changed
+
+* LED Matrix control moved to background thread.
+* LED Matrix control implementation moved to NPM package `led-matrix-controllers`.
+
+### Fixed
+
+* Animation no longer throttles to 1hz when tab is inactive. (#1)

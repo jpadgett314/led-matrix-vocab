@@ -1,19 +1,13 @@
-import { CustomLists } from './CustomLists.js';
-import { DataSources } from './DataSources.js'
-import { DisplayBuffer } from './DisplayBuffer.js';
-import { DisplayBufferPair } from './DisplayBufferPair.js';
-import { MarqueeText } from './MarqueeText.js';
-import { PortSelectionCancelled } from './usb-serial/environments/web/ports.js';
-import { SerialControllerFactory } from './usb-serial/SerialControllerFactory.js';
+import { CustomWordLists } from './CustomWordLists.js';
+import { WordSources } from './WordSources.js'
+import { requestPortForWorker, PortSelectionCancelled } from '../3rd-party/led-matrix-controllers/led-matrix-controllers.browser.mjs';
 
 class LetMatrixVocabApp {
   constructor() {
-    this.buffers = [new DisplayBuffer(), new DisplayBuffer()];
-    this.display = new DisplayBufferPair(...this.buffers);
-    this.customLists = new CustomLists();
-    this.wordSources = new DataSources(this.customLists);
+    this.worker = new Worker('js/controller-thread/worker.js', { type: 'module' });
+    this.customLists = new CustomWordLists();
+    this.wordSources = new WordSources(this.customLists);
     this.wordSource = this.wordSources.get()[0]; // assume 1st selected
-    this.wordMarquee = new MarqueeText(this.display);
     this.autoUpdate = false;
     this.timeLastUpdated = Date.now();
     this.waitPeriod = 0;
@@ -37,6 +31,14 @@ class LetMatrixVocabApp {
     this.autoUpdate = document.getElementById('auto-mode-switch').checked;
     this.currentCustomListId = this.customListSelect.value;
 
+    this.worker.onmessage = (e) => {
+      if (e.data == 'connect1-success') {
+        this.statusGood(0, 'Connected');
+      } else if (e.data == 'connect2-success') {
+        this.statusGood(1, 'Connected');
+      }
+    }
+
     await this.loadWord('単語');
 
     this.bindEvents();
@@ -49,13 +51,10 @@ class LetMatrixVocabApp {
   }
 
   bindEvents() {
-    // Connect Buttons
-    this.buffers.forEach((_, index) => {
-      document.getElementById(`connect-btn-${index + 1}`)
-        .addEventListener('click', () => this.handleConnectClick(index));
-    });
-
-    // Control Inputs
+    document.getElementById('connect-btn-1')
+      .addEventListener('click', () => this.handleConnectClick(0));
+    document.getElementById('connect-btn-2')
+      .addEventListener('click', () => this.handleConnectClick(1));
     document.getElementById('swap-ports-btn')
       .addEventListener('click', () => this.handleSwapPorts());
     document.getElementById('new-word-btn')
@@ -93,25 +92,12 @@ class LetMatrixVocabApp {
   // --- Event Handlers ---
 
   async handleConnectClick(index) {
-    const buffer = this.buffers[index];
-    const buttonSelector = `#connect-btn-${index + 1}`;
-
-    this.statusConnecting(index);
-
+    this.statusFail(index, 'Connecting...');
     try {
-      const module = await SerialControllerFactory.make('web', 'auto');
-      const ver = await module?.version();
-      if (ver) {
-        buffer.sinks = [module];
-        this.statusConnected(index, ver);
-        document.querySelector(buttonSelector).disabled = true;
-        await buffer.clear();
-      } else {
-        throw new Error('No firmware version received.');
-      }
+      await requestPortForWorker();
+      this.worker.postMessage({ type: `connect${index + 1}` });
     } catch (error) {
       if (error instanceof PortSelectionCancelled) {
-        console.error(error.message);
         this.statusFail(index, 'Cancelled Port Selection');
       } else {
         console.error(`Failed to connect to module ${index + 1}:`, error);
@@ -121,10 +107,7 @@ class LetMatrixVocabApp {
   }
 
   async handleSwapPorts() {
-    [this.buffers[0].sinks, this.buffers[1].sinks]
-      = [this.buffers[1].sinks, this.buffers[0].sinks];
-
-    await this.display.forceTx();
+    this.worker.postMessage({ type: 'portSwap' });
 
     // Swap port status HTML
     [
@@ -225,25 +208,16 @@ class LetMatrixVocabApp {
   // --- Helper Methods ---
 
   async loadWord(word) {
-    this.wordMarquee.load(word);
+    this.worker.postMessage({ type: 'word', word });
     document.getElementById('current-word').innerHTML = word;
     document.getElementById('jisho-link')
       .setAttribute('href', `https://jisho.org/search/${word}`);
   }
 
-  statusConnected(index, ver) {
-    let verArr = [ver.major, ver.minor, ver.patch];
-    verArr = verArr.filter(v => v != null);
+  statusGood(index, message) {
     document.getElementById(`status-display-${index + 1}`).innerHTML = `
       <span class="status-indicator status-connected"></span>
-      <span class="text-muted">Connected! Firmware Ver. ${verArr.join('.')}</span>
-    `;
-  }
-
-  statusConnecting(index) {
-    document.getElementById(`status-display-${index + 1}`).innerHTML = `
-      <span class="status-indicator status-disconnected"></span>
-      <span class="text-muted">Connecting...</span>
+      <span class="text-muted">${message}</span>
     `;
   }
 
@@ -309,18 +283,9 @@ class LetMatrixVocabApp {
         }
       }
     }, 1000); 
-    
-    // Throttles to 1hz when focus is lost.
-    setInterval(async () => {
-      if (this.wordMarquee) {
-        await this.wordMarquee.nextFrame();
-        await this.display.flush();
-      }
-    }, 50);
   }
 }
 
-// --- Run App ---
 document.addEventListener('DOMContentLoaded', async () => {
   const app = new LetMatrixVocabApp();
   await app.init();

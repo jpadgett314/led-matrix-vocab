@@ -1,4 +1,4 @@
-import { HEIGHT, WIDTH } from './hardware.js';
+import { HEIGHT, WIDTH } from '../../3rd-party/led-matrix-controllers/led-matrix-controllers.browser.mjs';
 
 export class DisplayBufferPair {
   constructor(bufferLeft, bufferRight) {
@@ -14,6 +14,13 @@ export class DisplayBufferPair {
     } else {
       this.#bufferRight.setPixel(r, c - WIDTH, val);
     }
+  }
+
+  async swap() {
+    let temp = this.#bufferLeft.sinks;
+    this.#bufferLeft.sinks = this.#bufferRight.sinks;
+    this.#bufferRight.sinks = temp;
+    await this.forceTx();
   }
 
   async clear() {

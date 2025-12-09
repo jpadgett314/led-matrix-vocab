@@ -1,5 +1,24 @@
-import { toGrayscaleMatrix } from './util.js';
 import { ScrollEffect } from './effects.js';
+
+function toGrayscaleMatrix(img) {
+  const matrix = [...Array(img.height)].map(
+    () => Array(img.width).fill(0)
+  );
+  
+  const _toGrayscale = (img, x, y) => {
+    const i = x + img.width * y;
+    const [r, g, b, a] = img.data.slice(4 * i, 4 * i + 4);
+    return (a / 255) * (r + g + b) / 3;
+  }
+
+  for (let r = 0; r < img.height; r++) {
+    for (let c = 0; c < img.width; c++) {
+      matrix[r][c] = _toGrayscale(img, c, r) / 255;
+    }
+  }
+
+  return matrix;
+}
 
 async function rasterizeCjkColor(text, w, h, x0, y0, dx, dy, bg, fg, font) {
   const canvas = new OffscreenCanvas(w, h);
@@ -12,7 +31,9 @@ async function rasterizeCjkColor(text, w, h, x0, y0, dx, dy, bg, fg, font) {
   ctx.textBaseline = 'ideographic';  
   ctx.imageSmoothingEnabled = false;
 
-  await document.fonts.load(font);
+  if (self.fonts && self.fonts.load) {
+    await self.fonts.load(font);
+  }
 
   for (let i = 0; i < text.length; i++) {
     ctx.fillText(text[i], x0 + i * dx, y0 + i * dy);

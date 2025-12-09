@@ -1,4 +1,11 @@
-import { fetchJson } from "./util.js";
+async function fetchJson(url) {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  } else {
+    return await response.json();
+  }
+}
 
 class OfflineJlptSource {
   static async init() {
@@ -87,7 +94,7 @@ const WORD_SOURCES = [
   },
 ];
 
-export class DataSources {
+export class WordSources {
   constructor(customLists) {
     this.#customLists = customLists;
   }

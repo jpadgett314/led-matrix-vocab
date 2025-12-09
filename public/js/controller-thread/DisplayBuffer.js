@@ -1,9 +1,10 @@
-import { HEIGHT, WIDTH } from './hardware.js';
-import { createArray } from './util.js';
+import { HEIGHT, WIDTH } from '../../3rd-party/led-matrix-controllers/led-matrix-controllers.browser.mjs';
+
+const createMatrix = (r, c) => [...Array(r)].map(() => Array(c).fill(0));
 
 export class DisplayBuffer {
   constructor() {
-    this.#buffer = createArray(HEIGHT, WIDTH);
+    this.#buffer = createMatrix(HEIGHT, WIDTH);
     this.#dirty = true;
     this.#optimizationEnabled = true;
     this.sinks = [];
@@ -17,7 +18,7 @@ export class DisplayBuffer {
   }
 
   async clear() {
-    this.#buffer = createArray(HEIGHT, WIDTH);
+    this.#buffer = createMatrix(HEIGHT, WIDTH);
     this.#dirty = true;
     await this.flush();
   }

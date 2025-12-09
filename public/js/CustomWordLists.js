@@ -1,4 +1,4 @@
-export class CustomLists {
+export class CustomWordLists {
   constructor() {
     this.storageKey = 'custom-word-lists';
     this.lists = this.loadLists();
