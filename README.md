@@ -10,7 +10,7 @@ Live demo: https://jpadgett314.github.io/led-matrix-vocab
 
 This app can be saved to your desktop! See [instructions](https://www.installpwa.com/from/jpadgett314.github.io%2Fled-matrix-vocab).
 
-There is no need to flash firmware, since default firmware is expected. 
+There is no need to flash firmware, since default firmware is expected. [FW_LED_Matrix_Firmware](github.com/sigroot/FW_LED_Matrix_Firmware) is also supported and automatically detected if present. 
 
 > [!NOTE]  
 > This app uses the Web Serial API, which is only supported on Chromium-based browsers.
