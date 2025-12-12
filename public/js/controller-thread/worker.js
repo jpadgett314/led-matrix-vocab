@@ -1,12 +1,12 @@
 import { DisplayBuffer } from './DisplayBuffer.js';
 import { DisplayBufferPair } from './DisplayBufferPair.js';
 import { MarqueeText } from './MarqueeText.js';
-import { DefaultController } from '../../3rd-party/led-matrix-controllers/led-matrix-controllers.browser.mjs';
+import { HardwareControllerFactory } from '../../3rd-party/led-matrix-controllers/led-matrix-controllers.browser.mjs';
 
 console.log('Worker Created');
 
-const controller1 = new DefaultController();
-const controller2 = new DefaultController();
+let controller1 = null;
+let controller2 = null;
 const displayBuffers = [new DisplayBuffer(), new DisplayBuffer()];
 const display = new DisplayBufferPair(...displayBuffers);
 const textMarquee = new MarqueeText(display);
@@ -16,13 +16,13 @@ async function loadWord(word) {
 }
 
 async function connect1() {
-  await controller1.connect();
+  controller1 = await HardwareControllerFactory.detectSerial();
   displayBuffers[0].sinks = [controller1];
   await displayBuffers[0].clear();
 }
 
 async function connect2() {
-  await controller2.connect();
+  controller2 = await HardwareControllerFactory.detectSerial();
   displayBuffers[1].sinks = [controller2];
   await displayBuffers[1].clear();
 }
