@@ -31,4 +31,5 @@
 
 ### Fixed
 
+* New service workers are activated as soon as available (#3).
 * Serial firmware detection works again.

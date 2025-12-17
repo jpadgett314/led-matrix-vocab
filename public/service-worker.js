@@ -33,6 +33,7 @@ const ASSETS_TO_CACHE = [
 
 self.addEventListener('install', event => {
   console.log('[ServiceWorker] Installing...');
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
       console.log('[ServiceWorker] Caching assets...');
@@ -66,8 +67,6 @@ self.addEventListener('fetch', event => {
   if (!isGetRequest || !isSameOrigin) return;
 
   const req = event.request;
- 
-  // Avoid the gnarly `then` chain
   const res = (async () => {
     try {
       let response = await caches.match(req);
@@ -81,7 +80,7 @@ self.addEventListener('fetch', event => {
       }
       return response;
     } catch {
-      console.log('[ServiceWorker] Fetch failed:', req.url);
+      throw new Error('[ServiceWorker] Fetch failed:', req.url);
     }
   })();
 
