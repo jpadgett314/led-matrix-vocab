@@ -1,16 +1,15 @@
 # Changelog
 
-## 0.2.0 - 2025-11-21
+## 0.3.2 - 2025-12-16
 
-### Added
+### Added 
 
-* Support for LED Matrix Modules with the following firmware: [sigroot/FW_LED_Matrix_Firmware](https://github.com/sigroot/FW_LED_Matrix_Firmware/tree/main/rp2040_firmware)
+* Separate word lists for each JLPT level without removing existing all-level list.
 
-## 0.3.0 - 2025-11-24
+### Fixed
 
-### Added
-
-* New "Custom Word Lists" panel with controls for creating, editing and deleting custom collections of words.
+* New service workers are activated as soon as available (#3).
+* Serial firmware detection works again.
 
 ## 0.3.1 - 2025-12-09
 
@@ -23,13 +22,14 @@
 
 * Animation no longer throttles to 1hz when tab is inactive. (#1)
 
-## 0.3.2 - 2025-12-12
+## 0.3.0 - 2025-11-24
 
-### Added 
+### Added
 
-* Separate word lists for each JLPT level without removing existing all-level list.
+* New "Custom Word Lists" panel with controls for creating, editing and deleting custom collections of words.
 
-### Fixed
+## 0.2.0 - 2025-11-21
 
-* New service workers are activated as soon as available (#3).
-* Serial firmware detection works again.
+### Added
+
+* Support for LED Matrix Modules with the following firmware: [sigroot/FW_LED_Matrix_Firmware](https://github.com/sigroot/FW_LED_Matrix_Firmware/tree/main/rp2040_firmware)
