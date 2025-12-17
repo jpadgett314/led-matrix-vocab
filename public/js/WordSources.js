@@ -9,18 +9,39 @@ async function fetchJson(url) {
 
 class OfflineJlptSource {
   static async init() {
-    OfflineJlptSource.#words = await fetchJson(
+    OfflineJlptSource.#entries = await fetchJson(
       'datasets/jlpt-words-by-level.json'
     );
+
+    const lvls = Object.groupBy(OfflineJlptSource.#entries, e => e.lvl);
+    OfflineJlptSource.#n1 = lvls.N1;
+    OfflineJlptSource.#n2 = lvls.N2;
+    OfflineJlptSource.#n3 = lvls.N3;
+    OfflineJlptSource.#n4 = lvls.N4;
+    OfflineJlptSource.#n5 = lvls.N5;
   }
 
-  static async getEntry(filter = () => true) {
-    if (!this.#words) await this.init();
+  static async getEntry(level = null) {
+    if (!this.#entries) await this.init();
 
-    const arr = this.#words.filter(filter);
+    let arr = this.#entries;
 
-    if (arr && arr.length > 0) {
-      const entry = arr[Math.trunc(Math.random() * arr.length)];
+    if (level == 'N1') {
+      arr = OfflineJlptSource.#n1;
+    } else if (level == 'N2') {
+      arr = OfflineJlptSource.#n2;
+    } else if (level == 'N3') {
+      arr = OfflineJlptSource.#n3;
+    } else if (level == 'N4') {
+      arr = OfflineJlptSource.#n4;
+    } else if (level == 'N5') {
+      arr = OfflineJlptSource.#n5;
+    }
+
+    let len = arr?.length;
+
+    if (arr && len > 0) {
+      const entry = arr[Math.trunc(Math.random() * len)];
       entry.jp.replaceAll('; ', '・');
       entry.jp.replaceAll(', ', '・');
       return entry;
@@ -29,7 +50,12 @@ class OfflineJlptSource {
     }
   }
 
-  static #words;
+  static #entries;
+  static #n1;
+  static #n2;
+  static #n3;
+  static #n4;
+  static #n5;
 }
 
 class OfflineWikipediaSource {
@@ -83,10 +109,40 @@ class OnlineJlptSource {
 */
 const WORD_SOURCES = [
   {
-    title: 'JLPT',
+    title: 'JLPT N1',
+    value: 'jlpt-n1',
+    fetch: async () => (await OfflineJlptSource.getEntry('N1')).jp,
+  },
+  {
+    title: 'JLPT N2',
+    value: 'jlpt-n2',
+    fetch: async () => (await OfflineJlptSource.getEntry('N2')).jp,
+  },
+  {
+    title: 'JLPT N3',
+    value: 'jlpt-n3',
+    fetch: async () => (await OfflineJlptSource.getEntry('N3')).jp,
+  },
+  {
+    title: 'JLPT N4',
+    value: 'jlpt-n4',
+    fetch: async () => (await OfflineJlptSource.getEntry('N4')).jp,
+  },
+  {
+    title: 'JLPT N5',
+    value: 'jlpt-n5',
+    fetch: async () => (await OfflineJlptSource.getEntry('N5')).jp,
+  },
+  {
+    title: 'JLPT (all)',
     value: 'jlpt1',
     fetch: async () => (await OfflineJlptSource.getEntry()).jp,
   },
+  // {
+  //   title: 'JLPT (online)',
+  //   value: 'jlpt2',
+  //   fetch: async () => (await OnlineJlptSource.getEntry()).word,
+  // },
   {
     title: 'Wikipedia Articles',
     value: 'wiki',

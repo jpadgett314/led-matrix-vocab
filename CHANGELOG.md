@@ -22,3 +22,13 @@
 ### Fixed
 
 * Animation no longer throttles to 1hz when tab is inactive. (#1)
+
+## 0.3.2 - 2025-12-12
+
+### Added 
+
+* Separate word lists for each JLPT level without removing existing all-level list.
+
+### Fixed
+
+* Serial firmware detection works again.

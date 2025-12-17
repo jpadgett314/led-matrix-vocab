@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="LED Matrix Word Randomizer" />
+
+  <title>LED Matrix Word Randomizer</title>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
+  
+  <link rel="stylesheet" href="3rd-party/bootstrap-icons/bootstrap-icons.min.css" />
+  
+  <link rel="stylesheet" href="app.css" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  
+  <style>
+    /* Minimal overrides for alignment where Pico defaults strictly to left */
+    .text-center { text-align: center; }
+    .text-end { text-align: right; }
+    .header-group { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+    .status-indicator { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 5px; }
+    /* You likely have these in app.css, but ensuring they exist for the mockup */
+    .status-disconnected { background-color: #e53935; }
+  </style>
+</head>
+
+<body>
+  <main class="container">
+    
+    <dialog id="unsupportedBrowserWarning" open style="display: none;">
+      <article>
+        <header>
+          <button aria-label="Close" rel="prev" onclick="this.closest('dialog').removeAttribute('open')"></button>
+          <strong>Browser Unsupported</strong>
+        </header>
+        <p>Your browser does not support the Web Serial API! A Chromium-based browser is required.</p>
+      </article>
+    </dialog>
+
+    <h1 class="text-center">LED Matrix Word Randomizer 🇯🇵</h1>
+
+    <div class="grid">
+      
+      <div>
+        <article>
+          <header>LED Matrix Control</header>
+          
+          <div class="header-group">
+            <div>
+              <strong>Left Module</strong>
+              <div id="status-display-1">
+                <span class="status-indicator status-disconnected"></span>
+                <small>Disconnected</small>
+              </div>
+            </div>
+            <button id="connect-btn-1">Select Port</button>
+          </div>
+
+          <hr />
+
+          <div class="header-group">
+            <div>
+              <strong>Right Module</strong>
+              <div id="status-display-2">
+                <span class="status-indicator status-disconnected"></span>
+                <small>Disconnected</small>
+              </div>
+            </div>
+            <button id="connect-btn-2">Select Port</button>
+          </div>
+
+          <div class="text-center" style="margin-top: 2rem;">
+            <button id="swap-ports-btn" class="secondary outline">
+              <i class="bi bi-arrow-left-right"></i> Swap Ports
+            </button>
+          </div>
+        </article>
+
+        <article>
+          <header>Custom Word Lists</header>
+
+          <label for="custom-list-select">Select List</label>
+          <select id="custom-list-select">
+            <option value="no-list">No custom lists</option>
+          </select>
+
+          <div role="group">
+            <button id="add-list-btn"><i class="bi bi-plus-lg"></i> New</button>
+            <button id="edit-list-btn" class="secondary"><i class="bi bi-pencil"></i> Edit</button>
+            <button id="delete-list-btn" class="contrast"><i class="bi bi-trash"></i> Delete</button>
+          </div>
+
+          <div id="list-controls" style="display: none; margin-top: 1rem;">
+            <label for="list-name-input">Name</label>
+            <input type="text" id="list-name-input" />
+
+            <label for="custom-list-textarea">Words (one per line)</label>
+            <textarea id="custom-list-textarea" rows="6" style="resize: vertical;"></textarea>
+            
+            <div role="group">
+              <button id="save-list-btn"><i class="bi bi-floppy"></i> Save</button>
+              <button id="cancel-edit-btn" class="secondary">Cancel</button>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <div>
+        <article>
+          <header>Word Randomizer</header>
+          
+          <div class="text-center" style="padding: 2rem 0;">
+            <h1 id="current-word" style="font-size: 3rem; margin-bottom: 0;">単語</h1>
+          </div>
+
+          <div class="header-group" style="align-items: flex-end;">
+            <small id="countdown-text" class="auto-mode" hidden>New word in...</small>
+            <div>
+               <a id="jisho-link" href="https://jisho.org/search/単語" target="_blank" role="button" class="outline secondary">
+                View on Jisho.org <i class="bi bi-box-arrow-up-right"></i>
+              </a>
+              <button id="new-word-btn" style="margin-left: 0.5rem;">New Word</button>
+            </div>
+          </div>
+
+          <hr />
+
+          <label for="word-source-select">Word Source</label>
+          <select id="word-source-select"></select>
+
+          <div class="header-group">
+            <label for="auto-mode-switch">Auto Mode</label>
+            <input type="checkbox" role="switch" id="auto-mode-switch" data-target=".auto-mode" />
+          </div>
+
+          <div class="auto-mode" hidden>
+            <label for="delay-input">Delay</label>
+            <fieldset role="group">
+              <input type="number" id="delay-input" value="60" min="5" max="300" aria-label="Delay in seconds" />
+              <input type="button" value="sec" readonly tabindex="-1" />
+            </fieldset>
+          </div>
+
+        </article>
+      </div>
+    </div>
+  </main>
+
+  <footer class="container">
+    <hr />
+    <div class="grid">
+      <div style="padding-top: 0.5rem;">
+        <small>
+          <a href="https://github.com/jpadgett314/led-matrix-vocab/blob/master/LICENSE_3RD_PARTY">Software Licenses</a>
+          |
+          <a href="https://github.com/jpadgett314/led-matrix-vocab/issues">Report an Issue</a>
+        </small>
+      </div>
+
+      <div class="text-end">
+        <details class="dropdown">
+          <summary role="button" class="secondary outline">Theme</summary>
+          <ul>
+            <li><a href="#" data-theme-value="light"><i class="bi bi-sun"></i> Light</a></li>
+            <li><a href="#" data-theme-value="dark"><i class="bi bi-moon-stars"></i> Dark</a></li>
+            <li><a href="#" data-theme-value="auto"><i class="bi bi-lightning-charge"></i> Auto</a></li>
+          </ul>
+        </details>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/app.js" type="module"></script>
+  <!-- <script>navigator.serviceWorker?.register('service-worker.js')</script> -->
+
+</body>
+</html>
