@@ -112,7 +112,7 @@ export class MarqueeText {
 
       return new ScrollEffect(
         scrollOptions,
-        (r, c) => raster[r][c] > 0.75 ? 1 : 0,
+        (r, c) => raster[r][c] > 0.50 ? 1 : 0,
         (r, c, v) => this.#display.setPixel(r, c + 1, v)
       );
     })();

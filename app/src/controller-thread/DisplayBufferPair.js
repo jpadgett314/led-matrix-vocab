@@ -1,4 +1,4 @@
-import { HEIGHT, WIDTH } from '../../3rd-party/led-matrix-controllers/led-matrix-controllers.browser.mjs';
+import { HEIGHT, WIDTH } from 'led-matrix-controllers';
 
 export class DisplayBufferPair {
   constructor(bufferLeft, bufferRight) {

@@ -1,10 +1,13 @@
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap-icons/font/bootstrap-icons.css';
+import 'bootstrap';
 import { CustomWordLists } from './CustomWordLists.js';
 import { WordSources } from './WordSources.js'
-import { requestPortForWorker, PortSelectionCancelled } from '../3rd-party/led-matrix-controllers/led-matrix-controllers.browser.mjs';
+import { requestPortForWorker, PortSelectionCancelled } from 'led-matrix-controllers';
 
 class LetMatrixVocabApp {
   constructor() {
-    this.worker = new Worker('js/controller-thread/worker.js', { type: 'module' });
+    this.worker = new Worker(new URL('./controller-thread/worker.js', import.meta.url), { type: 'module' });
     this.customLists = new CustomWordLists();
     this.wordSources = new WordSources(this.customLists);
     this.wordSource = this.wordSources.get()[0]; // assume 1st selected

@@ -10,26 +10,32 @@ Live demo: https://jpadgett314.github.io/led-matrix-vocab
 
 This app can be saved to your desktop! See [instructions](https://www.installpwa.com/from/jpadgett314.github.io%2Fled-matrix-vocab).
 
-There is no need to flash firmware, since default firmware is expected. [FW_LED_Matrix_Firmware](github.com/sigroot/FW_LED_Matrix_Firmware) is also supported and automatically detected if present. 
+There is no need to flash firmware, since default firmware is expected. 
 
 > [!NOTE]  
 > This app uses the Web Serial API, which is only supported on Chromium-based browsers.
 
 ## Development
 
-There is no bundler, no build. The source code is served directly from the `public` directory.
+Ensure you have Node.js installed on your system before proceeding.
 
-However, a web server is required. Options include:
+First, setup yarn: 
 
-1. Use Yarn: `yarn install`, `yarn serve`.
-2. Use [Live Server](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer) VSCode extension.
-3. From the `public` directory, invoke python's built-in module: `python3 -m http.server`
+```
+corepack enable
+yarn
+```
+
+Then build and start the app:
+
+```
+yarn build
+yarn preview
+```
 
 ## Contributing
 
-Please contribute your suggestions and/or your code!
-
-This project is still in early stages. Feel free to submit drafts as PRs; I will help finalize them.
+Please contribute your suggestions and/or your code! All pull requests welcome.
 
 ## Credits
 

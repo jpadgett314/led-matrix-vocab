@@ -4,9 +4,17 @@
   "license": "SEE LICENSE FILE",
   "packageManager": "yarn@4.11.0",
   "scripts": {
-    "serve": "serve ./public"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "5.4.0"
   },
   "dependencies": {
-    "serve": "^14.2.5"
+    "@popperjs/core": "2.11.8",
+    "bootstrap": "^5.3.8",
+    "bootstrap-icons": "^1.13.1",
+    "led-matrix-controllers": "^0.2.9"
   }
 }

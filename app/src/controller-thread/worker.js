@@ -1,7 +1,7 @@
 import { DisplayBuffer } from './DisplayBuffer.js';
 import { DisplayBufferPair } from './DisplayBufferPair.js';
 import { MarqueeText } from './MarqueeText.js';
-import { HardwareControllerFactory } from '../../3rd-party/led-matrix-controllers/led-matrix-controllers.browser.mjs';
+import { HardwareControllerFactory } from 'led-matrix-controllers';
 
 console.log('Worker Created');
 

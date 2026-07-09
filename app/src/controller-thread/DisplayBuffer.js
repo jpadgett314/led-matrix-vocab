@@ -1,4 +1,4 @@
-import { HEIGHT, WIDTH } from '../../3rd-party/led-matrix-controllers/led-matrix-controllers.browser.mjs';
+import { HEIGHT, WIDTH } from 'led-matrix-controllers';
 
 const createMatrix = (r, c) => [...Array(r)].map(() => Array(c).fill(0));
 

@@ -17,3 +17,9 @@ temp/
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+
+# Vite build output
+app/dist/
+
+# Personal files for convenience
+personal/
