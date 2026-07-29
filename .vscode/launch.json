@@ -1,0 +1,13 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "firefox",
+      "request": "launch",
+      "name": "Launch Firefox against Vite",
+      "url": "http://localhost:5173",
+      "webRoot": "${workspaceFolder}/app",
+      "skipFiles": ["<node_internals>/**"]
+    }
+  ]
+}

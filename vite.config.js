@@ -6,5 +6,17 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     emptyOutDir: true,
+    sourcemap: 'inline',
+  },
+  worker: {
+    format: 'es',
+    rollupOptions: {
+      output: {
+        sourcemap: 'inline'
+      }
+    }
+  },
+  server: {
+    sourcemapIgnoreList: false
   },
 });
