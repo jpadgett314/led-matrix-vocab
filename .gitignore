@@ -9,6 +9,9 @@ Thumbs.db
 *.tmp
 temp/
 
+# External dependencies 
+node_modules/**
+
 # Yarn v4 (not using Zero-Installs)
 .pnp.*
 .yarn/*
