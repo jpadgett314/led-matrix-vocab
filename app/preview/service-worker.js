@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'v8';
+const CACHE_VERSION = 'v9';
 const CACHE_NAME = `led-vocab-${CACHE_VERSION}`;
 
 const ASSETS_TO_CACHE = [
@@ -7,7 +7,8 @@ const ASSETS_TO_CACHE = [
   'app.css',
   'manifest.webmanifest',
   'favicon.ico',
-  'fonts/JF-Dot-jiskan16-1990.woff2',
+  'fonts/JF-Dot-jiskan16-inverted-bitdepth1-spritesheet.png',
+  'fonts/JF-Dot-jiskan16.fnt.json',
   'datasets/jlpt-words-by-level.json',
   'datasets/jawiki-2022-08-29.json',
   'icons/icon-192.png',
