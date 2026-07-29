@@ -1,7 +1,7 @@
 {
   "name": "led-matrix-vocab",
   "private": true,
-  "version": "0.4.2",
+  "version": "0.4.3",
   "license": "SEE LICENSE FILE",
   "packageManager": "yarn@4.17.1",
   "scripts": {
