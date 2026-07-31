@@ -22,7 +22,7 @@ node_modules/**
 !.yarn/versions
 
 # Vite build output
-app/dist/
+# app/dist/
 
 # Personal files for convenience
 personal/
